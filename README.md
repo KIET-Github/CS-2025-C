@@ -4,14 +4,13 @@ This repository contains the details of major project created by the students of
 <b>#NOTE</b><br>
 This repository contains the details of students under following faculty mentor only.
 <ul>
-<li>Mr. Vivek Kumar Sharma</li>
-<li>Ms. Shivani</li>
-<li>Mr. Anmol Jain</li>
-<li>Mr. Pawan Kumar Pal</li>
-<li>Mr. Puneet Kumar Goyal</li>
-<li>Mr. Pardeep Tyagi</li>
-<li>Mr. Rahul Kumar</li>
-<li>Mr. Vinay Pratap Singh</li>
+<li>Prof. Anmol Jain</li>
+<li>Prof. Arushi Gupta</li>
+<li>Prof. Neha Shukla</li>
+<li>Dr. Kalpana sagar</li>
+<li>Prof. Shivani</li>
+<li>Prof. Sreesh Gaur</li>
+<li>Prof. Arti Sharma</li>
   </ul>
 <b>#How to access</b><br>
 <ol>
