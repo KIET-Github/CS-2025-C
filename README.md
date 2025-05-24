@@ -47,7 +47,7 @@ Folders of following project Ids has been created.<br>
     </tr>
     <tr>
       <td>3</td>
-      <td>PCS25-01</td>
+      <td>PCS25-34</td>
       <td>Prof. Anmol Jain</td>
     </tr>
     <tr>
