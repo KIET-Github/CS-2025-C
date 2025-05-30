@@ -1,0 +1,283 @@
+  generator client {
+    provider = "prisma-client-js"
+  }
+
+  datasource db {
+    provider = "postgresql"
+    url      = env("DATABASE_URL")
+    directUrl = env("DIRECT_URL")
+  }
+
+
+  model User {
+    id            String    @id @default(cuid())
+    email         String    @unique
+    emailVerified DateTime?
+    name          String?
+    image         String?
+    role          Role      @default(UNVERIFIED)
+    verificationStatus UserVerificationStatus @default(NOT_APPLIED)
+    feedback     String?
+    chats         Chat[]
+
+    // Auth Relationships
+    accounts      Account[]
+    sessions      Session[]
+
+    // Profile Relations
+    institutionProfile InstitutionProfile?
+    companyProfile     CompanyProfile?
+    studentProfile     StudentProfile?
+    governmentProfile  GovernmentProfile?
+
+
+    // Document Relations
+    documents     Document[]
+  
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+  }
+
+  model Account {
+    id                 String  @id @default(cuid())
+    userId             String
+    type               String
+    provider           String
+    providerAccountId  String
+    refresh_token      String?
+    access_token       String?
+    expires_at         Int?
+    token_type         String?
+    scope              String?
+    id_token           String?
+    session_state      String?
+
+    user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+    @@unique([provider, providerAccountId])
+  }
+
+  model Session {
+    id           String   @id @default(cuid())
+    sessionToken String   @unique
+    userId       String
+    expires      DateTime
+    user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  }
+
+  model VerificationToken {
+    identifier String
+    token      String   @unique
+    expires    DateTime
+
+    @@unique([identifier, token])
+  }
+
+  enum Role {
+    UNVERIFIED
+    SUPER_ADMIN
+    INSTITUTION_ADMIN
+    COMPANY_REPRESENTATIVE
+    STUDENT
+    GOVERNMENT_REPRESENTATIVE
+  }
+
+  enum UserVerificationStatus {
+    NOT_APPLIED
+    PENDING
+    APPROVED
+    REJECTED
+  }
+
+  enum VerificationStatus {
+    NOT_VERIFIED
+    VERIFIED
+    REJECTED
+  }
+
+  model Document {
+    id            String    @id @default(cuid())
+    userId        String
+    type          DocumentType
+    fileUrl       String
+
+    // Relations
+    user          User      @relation(fields: [userId], references: [id])
+
+    createdAt     DateTime  @default(now())
+    updatedAt     DateTime  @updatedAt
+  }
+
+
+  enum DocumentType {
+    INSTITUTION_ID
+    AUTHORIZATION_LETTER
+    COMPANY_ID
+    BUSINESS_CARD
+    GOVERNMENT_ID
+    DEPARTMENT_LETTER
+    STUDENT_ID
+  }
+
+  model Institution {
+    id            String    @id @default(cuid())
+    name          String
+    address       String
+    city          String
+    state         String
+    website       String
+    verificationStatus VerificationStatus @default(NOT_VERIFIED)
+
+    // Relations
+    admins        InstitutionProfile[]
+    students      StudentProfile[]
+
+    createdAt     DateTime  @default(now())
+    updatedAt     DateTime  @updatedAt
+  }
+
+  model InstitutionProfile {
+    id            String    @id @default(cuid())
+    userId        String    @unique
+    institutionId String
+    
+    user          User        @relation(fields: [userId], references: [id])
+    institution   Institution @relation(fields: [institutionId], references: [id])
+  }
+
+  model Company {
+    id            String    @id @default(cuid())
+    name          String
+    website       String
+    address       String
+    city          String
+    state         String
+    verificationStatus VerificationStatus @default(NOT_VERIFIED)
+
+
+    // Relations
+    representatives CompanyProfile[]
+    placements      PlacementRecord[]
+
+    createdAt     DateTime  @default(now())
+    updatedAt     DateTime  @updatedAt
+  }
+
+  model CompanyProfile {
+    id            String    @id @default(cuid())
+    userId        String    @unique
+    companyId     String
+
+    user          User      @relation(fields: [userId], references: [id])
+    company       Company   @relation(fields: [companyId], references: [id])
+  }
+
+  model Government {
+    id            String    @id @default(cuid())
+    name          String
+    level         GovernmentLevel
+    website       String
+    verificationStatus VerificationStatus @default(NOT_VERIFIED)
+
+    // Relations
+    representatives GovernmentProfile[]
+
+    createdAt     DateTime  @default(now())
+    updatedAt     DateTime  @updatedAt
+  }
+
+  enum GovernmentLevel {
+    FEDERAL
+    STATE
+    LOCAL
+  }
+
+  model GovernmentProfile {
+    id            String    @id @default(cuid())
+    userId        String    @unique
+    governmentId  String
+    department    String
+    designation   String
+
+    // Relations
+    user          User       @relation(fields: [userId], references: [id])
+    government    Government @relation(fields: [governmentId], references: [id])
+  }
+
+  model StudentProfile {
+    id            String    @id @default(cuid())
+    userId        String    @unique
+    institutionId String
+    enrollmentNo  String
+    graduationYear Int
+    gender        Gender
+    department    Department
+
+    // Relations
+    user          User        @relation(fields: [userId], references: [id])
+    institution   Institution @relation(fields: [institutionId], references: [id])
+    placements    PlacementRecord[]
+
+    createdAt     DateTime  @default(now())
+    updatedAt     DateTime  @updatedAt
+  }
+
+  model PlacementRecord {
+    id              String    @id @default(cuid())
+    studentId       String
+    companyId       String
+    verificationStatus VerificationStatus @default(NOT_VERIFIED)
+
+    // Relations
+    student        StudentProfile @relation(fields: [studentId], references: [id])
+    company        Company    @relation(fields: [companyId], references: [id])
+
+    createdAt     DateTime  @default(now())
+    updatedAt     DateTime  @updatedAt
+  }
+
+
+  enum Gender {
+    MALE
+    FEMALE
+  }
+
+  enum Department {
+    CS
+    IT
+    ME
+    EE
+    EC
+    CE
+  }
+
+
+  
+model Chat {
+  id         String    @id @default(uuid())
+  title      String    @default("New Chat")
+  userId     String
+  createdAt  DateTime   @default(now())
+
+  user       User      @relation(fields: [userId], references: [id])
+  messages   Message[]
+}
+
+model Message {
+  id         String   @id @default(uuid())
+  chatId     String
+  role       MessageRole
+  content    String
+  createdAt  DateTime   @default(now())
+
+  chat       Chat     @relation(fields: [chatId], references: [id])
+}
+
+enum MessageRole {
+  user
+  model
+}
+
+
+
